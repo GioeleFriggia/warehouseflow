@@ -15,7 +15,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8080
+
+app:
+  jwtSecret: "warehouseflowsupersecretkey123456789"
+  jwtExpirationMs: 86400000
+  corsAllowedOrigins: "http://localhost:5173"

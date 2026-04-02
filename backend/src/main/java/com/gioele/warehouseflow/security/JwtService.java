@@ -56,13 +56,23 @@ public class JwtService {
 
     private SecretKey getSigningKey() {
         String secret = appProperties.getJwtSecret();
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("JWT secret non configurata");
+        }
+
         byte[] keyBytes;
+
         try {
             keyBytes = Decoders.BASE64.decode(secret);
-        } catch (IllegalArgumentException ex) {
+        } catch (Exception ex) {
             keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         }
-        return Keys.hmacShaKeyFor(keyBytes.length >= 32 ? keyBytes : padKey(keyBytes));
+
+        if (keyBytes.length < 32) {
+            keyBytes = padKey(keyBytes);
+        }
+
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     private byte[] padKey(byte[] keyBytes) {
