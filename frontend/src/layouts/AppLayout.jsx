@@ -13,8 +13,7 @@ export default function AppLayout() {
           <NavLink to="/products">Prodotti</NavLink>
           <NavLink to="/movements">Movimenti</NavLink>
           <NavLink to="/orders">Ordini</NavLink>
-          <NavLink to="/inventory-history">Storico inventari</NavLink>
-          <NavLink to="/audit-logs">Audit log</NavLink>
+          <NavLink to="/inventory">Inventario</NavLink>
           <NavLink to="/users">Utenti</NavLink>
         </nav>
       </aside>

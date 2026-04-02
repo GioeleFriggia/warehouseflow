@@ -1,8 +1,10 @@
 package com.gioele.warehouseflow.controller;
 
-import com.gioele.warehouseflow.dto.InventorySnapshotCreateRequest;
-import com.gioele.warehouseflow.dto.InventorySnapshotResponse;
-import com.gioele.warehouseflow.service.InventorySnapshotService;
+import com.gioele.warehouseflow.dto.InventoryCountRequest;
+import com.gioele.warehouseflow.dto.InventorySessionCreateRequest;
+import com.gioele.warehouseflow.dto.InventorySessionResponse;
+import com.gioele.warehouseflow.service.InventoryService;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,21 +15,39 @@ import java.util.List;
 @CrossOrigin
 public class InventoryController {
 
-    private final InventorySnapshotService inventorySnapshotService;
+    private final InventoryService inventoryService;
 
-    public InventoryController(InventorySnapshotService inventorySnapshotService) {
-        this.inventorySnapshotService = inventorySnapshotService;
+    public InventoryController(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
     }
 
-    @GetMapping("/snapshots")
+    @GetMapping("/sessions")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WAREHOUSE')")
-    public List<InventorySnapshotResponse> findAll() {
-        return inventorySnapshotService.findAll();
+    public List<InventorySessionResponse> findAll() {
+        return inventoryService.findAll();
     }
 
-    @PostMapping("/snapshots")
+    @GetMapping("/sessions/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WAREHOUSE')")
-    public InventorySnapshotResponse create(@RequestBody InventorySnapshotCreateRequest request) {
-        return inventorySnapshotService.create(request);
+    public InventorySessionResponse findById(@PathVariable Long id) {
+        return inventoryService.findById(id);
+    }
+
+    @PostMapping("/sessions")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public InventorySessionResponse create(@Valid @RequestBody InventorySessionCreateRequest request) {
+        return inventoryService.create(request);
+    }
+
+    @PostMapping("/counts")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER','WAREHOUSE')")
+    public InventorySessionResponse count(@Valid @RequestBody InventoryCountRequest request) {
+        return inventoryService.count(request);
+    }
+
+    @PostMapping("/sessions/{id}/complete")
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
+    public InventorySessionResponse complete(@PathVariable Long id) {
+        return inventoryService.complete(id);
     }
 }

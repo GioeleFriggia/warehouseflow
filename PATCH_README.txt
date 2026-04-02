@@ -1,21 +1,26 @@
-Questa cartella contiene file NUOVI o MODIFICATI per aggiungere:
+WAREHOUSEFLOW PATCH 2
+=====================
 
-- export Excel/PDF
-- audit log forte
-- filtri per data/fornitore/categoria
-- avvisi automatici sotto scorta
-- storico inventari
+Questa patch aggiunge:
+- inventario guidato
+- ricevimento ordine automatico
+- allegati documenti sugli ordini
+- nuova pagina Inventory nel frontend
+- aggiornamento pagina Orders
 
-COME USARLA
-1) copia i file nelle stesse cartelle del progetto warehouseflow
-2) sovrascrivi i file esistenti quando richiesto
-3) nel backend esegui:
+COME INSTALLARE
+1. Copia il contenuto di questa cartella dentro la root del progetto warehouseflow.
+2. Sovrascrivi i file esistenti.
+3. Avvia backend:
+   cd backend
    mvn clean spring-boot:run
-4) nel frontend esegui:
+4. Avvia frontend:
+   cd frontend
    npm install
    npm run dev
 
 NOTE
-- Il backend usa nuove dipendenze Maven (Apache POI + OpenPDF)
-- Ho lasciato il progetto in Java/Spring Boot + JavaScript/React
-- Questa patch è stata preparata sulla struttura della repo che hai condiviso.
+- Gli allegati ordine vengono salvati nel database.
+- Il download allegati viene fatto dal frontend tramite axios + blob.
+- La chiusura inventario può creare automaticamente movimenti ADJUSTMENT.
+- Il ricevimento ordine crea automaticamente movimenti INBOUND per le quantità ricevute.

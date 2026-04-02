@@ -15,6 +15,7 @@ public class PurchaseOrderResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<PurchaseOrderItemResponse> items = new ArrayList<>();
+    private List<PurchaseOrderDocumentResponse> documents = new ArrayList<>();
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -32,4 +33,6 @@ public class PurchaseOrderResponse {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public List<PurchaseOrderItemResponse> getItems() { return items; }
     public void setItems(List<PurchaseOrderItemResponse> items) { this.items = items; }
+    public List<PurchaseOrderDocumentResponse> getDocuments() { return documents; }
+    public void setDocuments(List<PurchaseOrderDocumentResponse> documents) { this.documents = documents; }
 }
