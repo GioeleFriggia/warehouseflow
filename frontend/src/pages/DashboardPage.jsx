@@ -30,6 +30,40 @@ export default function DashboardPage() {
       </section>
 
       <section className="card">
+        <h2>Avvisi automatici sotto scorta</h2>
+        {data.lowStockAlerts?.length ? (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Prodotto</th>
+                  <th>Categoria</th>
+                  <th>Fornitore</th>
+                  <th>Disponibile</th>
+                  <th>Minimo</th>
+                  <th>Mancano</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.lowStockAlerts.map((item) => (
+                  <tr key={item.productId}>
+                    <td>{item.sku}</td>
+                    <td>{item.productName}</td>
+                    <td>{item.category}</td>
+                    <td>{item.supplier}</td>
+                    <td>{item.quantityAvailable}</td>
+                    <td>{item.minimumThreshold}</td>
+                    <td>{item.missingQuantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : <div className="success-box">Nessun prodotto sotto scorta.</div>}
+      </section>
+
+      <section className="card">
         <h2>Movimenti recenti</h2>
         <div className="table-wrap">
           <table>

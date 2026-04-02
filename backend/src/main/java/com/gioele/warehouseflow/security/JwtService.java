@@ -61,7 +61,6 @@ public class JwtService {
         }
 
         byte[] keyBytes;
-
         try {
             keyBytes = Decoders.BASE64.decode(secret);
         } catch (Exception ex) {

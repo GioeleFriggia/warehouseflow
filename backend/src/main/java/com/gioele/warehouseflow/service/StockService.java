@@ -1,7 +1,8 @@
 package com.gioele.warehouseflow.service;
 
-import com.gioele.warehouseflow.dto.StockMovementRequest;
 import com.gioele.warehouseflow.dto.StockMovementResponse;
+import com.gioele.warehouseflow.entity.AuditAction;
+import com.gioele.warehouseflow.dto.StockMovementRequest;
 import com.gioele.warehouseflow.entity.MovementType;
 import com.gioele.warehouseflow.entity.Product;
 import com.gioele.warehouseflow.entity.StockMovement;
@@ -9,10 +10,12 @@ import com.gioele.warehouseflow.entity.User;
 import com.gioele.warehouseflow.repository.StockMovementRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -23,13 +26,16 @@ public class StockService {
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
     private final UserService userService;
+    private final AuditLogService auditLogService;
 
     public StockService(StockMovementRepository stockMovementRepository,
                         ProductService productService,
-                        UserService userService) {
+                        UserService userService,
+                        AuditLogService auditLogService) {
         this.stockMovementRepository = stockMovementRepository;
         this.productService = productService;
         this.userService = userService;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -38,12 +44,12 @@ public class StockService {
         User user = userService.getCurrentUserEntity();
 
         int currentQuantity = product.getQuantityAvailable();
-        int nextQuantity = currentQuantity;
+        int nextQuantity;
 
         if (request.getMovementType() == MovementType.INBOUND) {
-            nextQuantity += request.getQuantity();
+            nextQuantity = currentQuantity + request.getQuantity();
         } else if (request.getMovementType() == MovementType.OUTBOUND) {
-            nextQuantity -= request.getQuantity();
+            nextQuantity = currentQuantity - request.getQuantity();
         } else {
             nextQuantity = request.getQuantity();
         }
@@ -64,7 +70,12 @@ public class StockService {
         movement.setDestinationLocation(request.getDestinationLocation());
         movement.setNotes(request.getNotes());
 
-        return toResponse(stockMovementRepository.save(movement));
+        StockMovement saved = stockMovementRepository.save(movement);
+        auditLogService.log(AuditAction.STOCK_MOVEMENT_CREATED, "StockMovement", String.valueOf(saved.getId()), user,
+                "qtyBefore=" + currentQuantity, "qtyAfter=" + nextQuantity,
+                saved.getMovementType() + " " + saved.getQuantity() + " " + product.getSku());
+
+        return toResponse(saved);
     }
 
     public List<StockMovementResponse> findRecent() {
@@ -73,10 +84,29 @@ public class StockService {
                 .toList();
     }
 
+    public List<StockMovementResponse> findFiltered(Long productId,
+                                                    MovementType movementType,
+                                                    String performedBy,
+                                                    LocalDate dateFrom,
+                                                    LocalDate dateTo) {
+        LocalDateTime from = dateFrom != null ? dateFrom.atStartOfDay() : null;
+        LocalDateTime to = dateTo != null ? dateTo.plusDays(1).atStartOfDay() : null;
+
+        return stockMovementRepository.findAll().stream()
+                .filter(movement -> productId == null || movement.getProduct().getId().equals(productId))
+                .filter(movement -> movementType == null || movement.getMovementType() == movementType)
+                .filter(movement -> !StringUtils.hasText(performedBy)
+                        || (movement.getPerformedBy().getFirstName() + " " + movement.getPerformedBy().getLastName()).toLowerCase().contains(performedBy.toLowerCase()))
+                .filter(movement -> from == null || !movement.getCreatedAt().isBefore(from))
+                .filter(movement -> to == null || movement.getCreatedAt().isBefore(to))
+                .sorted(Comparator.comparing(StockMovement::getCreatedAt).reversed())
+                .map(this::toResponse)
+                .toList();
+    }
+
     public List<StockMovementResponse> findToday() {
         LocalDate today = LocalDate.now();
-        return stockMovementRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(today.atStartOfDay(), today.plusDays(1).atStartOfDay())
-                .stream().map(this::toResponse).toList();
+        return findFiltered(null, null, null, today, today);
     }
 
     public long countToday() {

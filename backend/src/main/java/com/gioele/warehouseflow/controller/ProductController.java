@@ -21,8 +21,11 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductResponse> findAll(@RequestParam(required = false) String search) {
-        return productService.findAll(search);
+    public List<ProductResponse> findAll(@RequestParam(required = false) String search,
+                                         @RequestParam(required = false) String category,
+                                         @RequestParam(required = false) String supplier,
+                                         @RequestParam(required = false) Boolean lowStockOnly) {
+        return productService.findAll(search, category, supplier, lowStockOnly);
     }
 
     @GetMapping("/low-stock")

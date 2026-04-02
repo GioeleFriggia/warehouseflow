@@ -9,6 +9,7 @@ public class DashboardResponse {
     private long movementsToday;
     private long openOrders;
     private List<StockMovementResponse> recentMovements = new ArrayList<>();
+    private List<LowStockAlertResponse> lowStockAlerts = new ArrayList<>();
 
     public long getTotalProducts() { return totalProducts; }
     public void setTotalProducts(long totalProducts) { this.totalProducts = totalProducts; }
@@ -20,4 +21,6 @@ public class DashboardResponse {
     public void setOpenOrders(long openOrders) { this.openOrders = openOrders; }
     public List<StockMovementResponse> getRecentMovements() { return recentMovements; }
     public void setRecentMovements(List<StockMovementResponse> recentMovements) { this.recentMovements = recentMovements; }
+    public List<LowStockAlertResponse> getLowStockAlerts() { return lowStockAlerts; }
+    public void setLowStockAlerts(List<LowStockAlertResponse> lowStockAlerts) { this.lowStockAlerts = lowStockAlerts; }
 }
